@@ -63,6 +63,7 @@ module GroupSmarts
           before_create :uuid_pk
           include InstanceMethods
         end #class_eval
+        column = options[:column] || 'id'
         if options[:column]
           class_eval do
             set_primary_key options[:column]
@@ -71,6 +72,7 @@ module GroupSmarts
             end
           end #class_eval
         end #if
+        validates_uniqueness_of column
       end
     end
   end #module
