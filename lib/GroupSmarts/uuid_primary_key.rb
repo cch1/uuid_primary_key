@@ -63,7 +63,6 @@ module GroupSmarts
           before_create :uuid_pk
           include InstanceMethods
         end #class_eval
-        column = options[:column] || 'id'
         if options[:column]
           class_eval do
             set_primary_key options[:column]
@@ -72,7 +71,7 @@ module GroupSmarts
             end
           end #class_eval
         end #if
-        validates_uniqueness_of column
+        validates_uniqueness_of (options[:column] || 'id')
       end
     end
   end #module
@@ -87,11 +86,11 @@ module GroupSmarts
     # attribute, then that attribute should be valid.  If no UUID is 
     # provided, then one will be assigned by the UUIDPrimaryKey module.
     def validate_on_create
-      if !self.uuid.nil?
+      unless self.id.nil?
         begin
-          errors.add("uuid", "is invalid.") unless UUID.parse(self.uuid).valid?
+          errors.add(self.class.primary_key, "is invalid.") unless UUID.parse(self.id).valid?
         rescue ArgumentError
-          errors.add("uuid", "can't be parsed")
+          errors.add(self.class.primary_key, "can't be parsed")
         end
       end
     end
