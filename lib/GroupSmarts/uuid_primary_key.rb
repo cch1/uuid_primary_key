@@ -74,25 +74,31 @@ module GroupSmarts
         validates_uniqueness_of (options[:column] || 'id')
       end
     end
-  end #module
   
-  module InstanceMethods
-    # Assigns the UUID primary key from the local host's signature and a timestamp.
-    def uuid_pk(params = nil)
-      self.id ||= UUID.timestamp_create.to_s
-    end
-    
-    # The expectation here is that IF the controller provides the UUID 
-    # attribute, then that attribute should be valid.  If no UUID is 
-    # provided, then one will be assigned by the UUIDPrimaryKey module.
-    def validate_on_create
-      unless self.id.nil?
-        begin
-          errors.add(self.class.primary_key, "is invalid.") unless UUID.parse(self.id).valid?
-        rescue ArgumentError
-          errors.add(self.class.primary_key, "can't be parsed")
+    module InstanceMethods
+      # Assigns the UUID primary key from the local host's signature and a timestamp.
+      def uuid_pk(params = nil)
+        self.id ||= UUID.timestamp_create.to_s
+      end
+      
+      # The expectation here is that IF the controller provides the UUID 
+      # attribute, then that attribute should be valid.  If no UUID is 
+      # provided, then one will be assigned by the UUIDPrimaryKey module.
+      def validate_on_create
+        unless self.id.nil?
+          begin
+            errors.add(self.class.primary_key, "is invalid.") unless UUID.parse(self.id).valid?
+          rescue ArgumentError
+            errors.add(self.class.primary_key, "can't be parsed")
+          end
         end
       end
-    end
+  
+      # This private method of ActiveRecord::Base is overridden to allow external assignment of the UUID PK.
+      def attributes_protected_by_default
+        [ self.class.inheritance_column ]
+      end
+      private :attributes_protected_by_default      
+    end #module
   end #module
 end #module
