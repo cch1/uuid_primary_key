@@ -71,7 +71,7 @@ module GroupSmarts
             end
           end #class_eval
         end #if
-        validates_uniqueness_of (options[:column] || 'id')
+        validates_uniqueness_of (options[:column] || 'id'), :allow_nil => true
       end
     end
   
