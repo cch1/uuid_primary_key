@@ -60,25 +60,32 @@ module GroupSmarts
     module ClassMethods
       def UUIDPrimaryKey(options = {})
         class_eval do
-          before_create :uuid_pk
+          before_create :uuid!, :unless => :id 
           include InstanceMethods
         end #class_eval
         if options[:column]
           class_eval do
             set_primary_key options[:column]
-            define_method(options[:column] + "_before_type_cast") do
-              read_attribute_before_type_cast(self.class.primary_key)
-            end
           end #class_eval
         end #if
-        validates_uniqueness_of (options[:column] || 'id'), :allow_nil => true
+        validates_uniqueness_of((options[:column] || 'id'), :allow_nil => true)
       end
     end
   
     module InstanceMethods
-      # Assigns the UUID primary key from the local host's signature and a timestamp.
-      def uuid_pk(params = nil)
-        self.id ||= UUID.timestamp_create.to_s
+      # Assigns the UUID primary key from the local host's signature and a timestamp if not already set.
+      def uuid!
+        @uuid = ::UUID.timestamp_create
+        self.uuid = @uuid.to_s
+      end
+      
+      def uuid=(u)
+        raise "The UUID cannot be changed once set." if self.id
+        write_attribute(self.class.primary_key, u)
+      end
+      
+      def UUID
+        @uuid ||= ::UUID.parse(read_attribute(self.class.primary_key)) if read_attribute(self.class.primary_key) 
       end
       
       # The expectation here is that IF the controller provides the UUID 
@@ -92,13 +99,7 @@ module GroupSmarts
             errors.add(self.class.primary_key, "can't be parsed")
           end
         end
-      end
-  
-      # This private method of ActiveRecord::Base is overridden to allow external assignment of the UUID PK.
-      def attributes_protected_by_default
-        [ self.class.inheritance_column ]
-      end
-      private :attributes_protected_by_default      
+      end #validate_on_create
     end #module
   end #module
 end #module
