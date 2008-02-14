@@ -59,16 +59,18 @@ module GroupSmarts
     
     module ClassMethods
       def UUIDPrimaryKey(options = {})
-        class_eval do
-          before_create :uuid! 
-          include InstanceMethods
-        end #class_eval
         if options[:column]
           class_eval do
             set_primary_key options[:column]
           end #class_eval
         end #if
-        validates_uniqueness_of((options[:column] || 'id'), :allow_nil => true)
+        class_eval do
+          before_create :uuid! 
+          include InstanceMethods
+        end #class_eval
+        # Ensures primary key is unique, but only makes the check when the PK is not nil at 
+        # validation time (before before_create)
+        validates_uniqueness_of(primary_key, :allow_nil => true)
       end
     end
   
@@ -80,6 +82,7 @@ module GroupSmarts
         self.uuid = @uuid.to_s
       end
       
+      # Provides a restricted setter that does not require overriding attributes_protected_by_default
       def uuid=(u)
         raise "The UUID cannot be changed once set." if self.id
         write_attribute(self.class.primary_key, u)
@@ -95,7 +98,7 @@ module GroupSmarts
       def validate_on_create
         unless self.id.nil?
           begin
-            errors.add(self.class.primary_key, "is invalid.") unless UUID.parse(self.id).valid?
+            errors.add(self.class.primary_key, "is invalid.") unless self.UUID.valid?
           rescue ArgumentError
             errors.add(self.class.primary_key, "can't be parsed")
           end
