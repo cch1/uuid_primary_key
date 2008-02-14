@@ -60,7 +60,7 @@ module GroupSmarts
     module ClassMethods
       def UUIDPrimaryKey(options = {})
         class_eval do
-          before_create :uuid!, :unless => :id 
+          before_create :uuid! 
           include InstanceMethods
         end #class_eval
         if options[:column]
@@ -75,6 +75,7 @@ module GroupSmarts
     module InstanceMethods
       # Assigns the UUID primary key from the local host's signature and a timestamp if not already set.
       def uuid!
+        return if self.id
         @uuid = ::UUID.timestamp_create
         self.uuid = @uuid.to_s
       end
