@@ -71,6 +71,7 @@ module GroupSmarts
         # Ensures primary key is unique, but only makes the check when the PK is not nil at 
         # validation time (before before_create)
         validates_uniqueness_of(primary_key, :allow_nil => true)
+        validate_on_create :validate_uuid
       end
     end
   
@@ -88,14 +89,13 @@ module GroupSmarts
         write_attribute(self.class.primary_key, u)
       end
       
+      # Returns UUID object corresponding to primary key.
       def UUID
         @uuid ||= ::UUID.parse(read_attribute(self.class.primary_key)) if read_attribute(self.class.primary_key) 
       end
       
-      # The expectation here is that IF the controller provides the UUID 
-      # attribute, then that attribute should be valid.  If no UUID is 
-      # provided, then one will be assigned by the UUIDPrimaryKey module.
-      def validate_on_create
+      # Validate the UUID string representation
+      def validate_uuid
         unless self.id.nil?
           begin
             errors.add(self.class.primary_key, "is invalid.") unless self.UUID.valid?
