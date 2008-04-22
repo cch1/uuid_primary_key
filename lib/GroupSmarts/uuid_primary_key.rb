@@ -52,7 +52,8 @@ require 'uuidtools'
 
 module GroupSmarts
   module UUIDPrimaryKey #:nodoc:
-    
+    UUID_REGEXP = "[[:xdigit:]]{8}[:-][[:xdigit:]]{4}[:-][[:xdigit:]]{4}[:-][[:xdigit:]]{4}[:-][[:xdigit:]]{12}"
+
     def self.included(base)
       base.extend(ClassMethods)  
     end
