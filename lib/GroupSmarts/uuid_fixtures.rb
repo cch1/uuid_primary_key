@@ -3,6 +3,7 @@
 # In your test_helper.rb file, require this file:
 # require 'GroupSmarts/uuid_fixtures'  
 require 'uuidtools'
+require 'active_record/fixtures'
 class Fixtures
   def self.identify_with_uuid_option(label, uuid = false)
     number = self.identify_without_uuid_option(label)
