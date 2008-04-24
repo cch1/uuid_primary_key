@@ -3,7 +3,7 @@
 # In your test_helper.rb file, require this file:
 # require 'GroupSmarts/uuid_fixtures'  
 require 'uuidtools'
-require 'active_record/fixtures'
+raise "Fixtures not yet loaded, but loading now will expose a bug (RoR:#10379) in reloading Test::Unit::TestCase." unless Object.const_defined?("Fixtures")
 class Fixtures
   def self.identify_with_uuid_option(label, uuid = false)
     number = self.identify_without_uuid_option(label)
