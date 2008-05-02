@@ -80,8 +80,8 @@ module GroupSmarts
     module InstanceMethods
       # Assigns the UUID primary key from the local host's signature and a timestamp if not already set.
       def uuid!
-        return if self.id
-        @uuid = ::UUID.timestamp_create
+        return self.id if self.id
+        @uuid ||= ::UUID.timestamp_create
         self.uuid = @uuid.to_s
       end
       
